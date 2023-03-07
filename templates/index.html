@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!-- <link rel="stylesheet" href="style.css" /> -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <title>Farming Council</title>
+    </head>
+    <body>
+        <div id = "loading" class="loading">
+            <h1>Loading...</h1>
+            <div class="lds-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+        <div id="error" class="error">
+            <h1 class="errorh1">error 404</h1>
+            <h1 id = "errorh2" class="errorh2">Unknown error has occurred</h1>
+        </div>
+        <div id = "success" class="success">
+            <h1 class="successh1">You're all set now!</h1>
+            <p class="successp">
+                Go back to the Discord Serer, click<br />"Linked Roles" again
+                follow instructions!
+            </p>
+            <p id = "successPlayer" class="successPlayer">Connected to player:</p>
+        </div>
+
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+                font-family: "Roboto", sans-serif;
+                font-size: 16px;
+                color: #fff;
+            }
+
+            body {
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(
+                    90deg,
+                    rgba(249, 153, 61, 1) 0%,
+                    rgba(199, 67, 34, 1) 100%
+                );
+            }
+
+            /************ Loading ************/
+
+            .loading {
+                display: flex;  /* <--either this or "display:flex has to be commented out!!! */
+                /* display: none; */
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .loading h1 {
+                text-align: center;
+                margin-bottom: 20px;
+                font-size: 2em;
+            }
+
+            .lds-ring {
+                display: inline-block;
+                position: relative;
+                width: 80px;
+                height: 80px;
+            }
+            .lds-ring div {
+                box-sizing: border-box;
+                display: block;
+                position: absolute;
+                width: 64px;
+                height: 64px;
+                margin: 8px;
+                border: 8px solid #fff;
+                border-radius: 50%;
+                animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+                border-color: #fff transparent transparent transparent;
+            }
+            .lds-ring div:nth-child(1) {
+                animation-delay: -0.225s;
+            }
+            .lds-ring div:nth-child(2) {
+                animation-delay: -0.15s;
+            }
+            .lds-ring div:nth-child(3) {
+                animation-delay: -0.075s;
+            }
+            @keyframes lds-ring {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /************ Error ************/
+
+            .error {
+                display: none;
+                position: absolute;
+            }
+
+            .errorh1 {
+                font-weight: 700;
+                font-size: 8em;
+                text-align: center;
+            }
+
+            /************ Success ************/
+
+            .success {
+                display: none;
+                position: absolute;
+            }
+
+            .successh1 {
+                font-weight: 700;
+                font-size: 6em;
+                text-align: center;
+            }
+
+            .successp {
+                font-weight: 400;
+                font-size: 1.5em;
+                text-align: center;
+                margin-top: -0.4em;
+            }
+
+            .successPlayer {
+                font-size: 1em;
+                text-align: center;
+                margin-top: 1em;
+            }
+        </style>
+    </body>
+    <script>
+        
+        async function make_request(){
+
+
+        }
+        window.onload = async (event) => {
+            done = false;
+            const api_call = async () => {
+                let code = new URLSearchParams(window.location.search).get("code");
+                const response = await fetch("https://2431-76-119-178-97.ngrok.io/api/new?code="+code);
+                const json = await response.json(); 
+                return(json);
+            }
+            resp = await api_call(); 
+            console.log(resp);
+            if(!done){
+                if(resp["status"]==1){
+                    document.getElementById("loading").style.display = "none";
+                    document.getElementById("success").style.display = "block";
+                    document.getElementById("successPlayer").innerHTML = resp["msg"];
+                    done = true;
+                }else{
+                    document.getElementById("loading").style.display = "none";
+                    document.getElementById("error").style.display = "block";
+                    document.getElementById("errorh2").innerHTML = resp["msg"];
+                    done = true;
+                }
+                
+            }        };
+    </script>
+</html>
