@@ -1,7 +1,7 @@
 FROM tiangolo/uwsgi-nginx-flask:python3.11
 MAINTAINER CosmicCrow, <cosmiccrow@farmingcouncil.com>
 
-EXPOSE 80 443 1121
+EXPOSE 80 443
 
 
 copy . /app
