@@ -168,14 +168,19 @@ def get_ign(discord_id):
     cur = conn.cursor()
     cur.execute("SELECT ign FROM verification WHERE user_id=%s",(int(discord_id),))
     resp = cur.fetchone()
+    cur.close()
+
     if resp:
         return resp[0]
     else:
         return None
+    
 def get_profile(discord_id):
     cur = conn.cursor()
     cur.execute("SELECT profile FROM verification WHERE user_id=%s",(int(discord_id),))
     resp = cur.fetchone()
+    cur.close()
+
     if resp:
         return resp[0]
     else:
@@ -185,6 +190,8 @@ def get_token(discord_id):
     cur = conn.cursor()
     cur.execute("SELECT * FROM linked_users WHERE discord_id=%s",(int(discord_id),))
     resp = cur.fetchone()
+    cur.close()
+
     if resp:
         return resp
     else:

@@ -58,13 +58,14 @@ def index():
 def do_everthing():
     code = request.args.get('code')
     error = "Error: Unknown Error Occured :(, Please try again later or contact the developer at CosmicCrow#6355" 
-    token = client.exchange(code)
-    user = token.fetch_user()["user"]    
+ 
     try:
+        token = client.exchange(code)
+        user = token.fetch_user()["user"]   
         profile = utils.get_profile(user["id"])  
     except Exception as e:
         print(e)
-        return jsonify({"status":0,"msg":"Invalid discord reponce token, please try again"})
+        return jsonify({"status":0,"msg":"Invalid discord response token, please try again"})
     ign = utils.get_ign(user["id"])  
     if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
         ip = request.environ['REMOTE_ADDR']
