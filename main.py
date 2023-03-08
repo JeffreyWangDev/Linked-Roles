@@ -122,6 +122,6 @@ def update():
         except:
             return jsonify({"status":0,"msg":"Invalid discord token, please remove this as a authorized app in your discord settings and try again!"})
         return jsonify({"status":1,"msg":f"Connected to player: {ign} with profile: {profile}."})
-
+    return jsonify({"status":0,"msg":"Player not found, please remove this as a authorized app in your discord settings and try again!"})
 if __name__ == '__main__':
     app.run(debug=True,port=80)
