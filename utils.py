@@ -9,7 +9,7 @@ conn  = mysql.connector.connect(
   user=os.getenv("DB_USERNAME"),
   password=os.getenv("DB_PASSWORD"),
   database = os.getenv("DB_NAME"),
-  port = 3306,
+  port = 32813
 )
 cur = conn.cursor()
 # cur.execute("DROP TABLE IF EXISTS linked_users")
@@ -35,8 +35,8 @@ def try_it(member,collat):
         return 1
 
 def calculate_farming_weight(ign,profile = ""):
-    response = requests.get(f"https://api.slothpixel.me/api/skyblock/profile/{ign}/{profile}")
-    player = requests.get(f"https://api.slothpixel.me/api/players/{ign}").json()
+    response = requests.get(f"{os.getenv('API_ENDPOINT')}/api/skyblock/profile/{ign}/{profile}")
+    player = requests.get(f"{os.getenv('API_ENDPOINT')}/api/players/{ign}").json()
     if not response.ok:
         return [0,response.json()["error"]]
     json = response.json()
@@ -111,19 +111,19 @@ def calculate_farming_weight(ign,profile = ""):
 
 def new_user(ign:str,discord_id:int,profile:str,access_token:str,refresh_token:str,expires_in:int,ip:str):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM linked_users WHERE discord_id=?",(discord_id,))
+    cur.execute("SELECT * FROM linked_users WHERE discord_id=%s",(discord_id,))
     resp = cur.fetchall()
     if resp:
         cur.execute("UPDATE linked_users SET ign = %s,profile=%s, access_token=%s,refresh_token=%s,expires_in=%s WHERE discord_id = %s",(ign,profile,access_token,refresh_token,int(expires_in),discord_id))
     else:
-        cur.execute("INSERT INTO linked_users (ign,discord_id,profile,access_token,refresh_token,expires_in,ip) VALUES (?,?,?,?,?,?,?)",(ign,int(discord_id),profile,access_token,refresh_token,int(expires_in),str(ip)))
+        cur.execute("INSERT INTO linked_users (ign,discord_id,profile,access_token,refresh_token,expires_in,ip) VALUES (%s,%s,%s,%s,%s,%s,%s)",(ign,int(discord_id),profile,access_token,refresh_token,int(expires_in),str(ip)))
     conn.commit()
     cur.close()
 
 
 def get_farming_data(user,profile=""):
-    response = requests.get(f"https://api.slothpixel.me/api/skyblock/profile/{user}/{profile}")
-    player = requests.get(f"https://api.slothpixel.me/api/players/{user}").json()
+    response = requests.get(f"{os.getenv('API_ENDPOINT')}/api/skyblock/profile/{user}/{profile}")
+    player = requests.get(f"{os.getenv('API_ENDPOINT')}/api/players/{user}").json()
     if response.ok:
         json = response.json()
         try:
@@ -158,7 +158,7 @@ def get_farming_data(user,profile=""):
         return [2,response.json()["error"]]
 
 def get_most_recent_profile(name):
-    response = requests.get(f"https://api.slothpixel.me/api/skyblock/profile/{name}")
+    response = requests.get(f"{os.getenv('API_ENDPOINT')}/api/skyblock/profile/{name}")
     if response.ok:
         return response.json()["cute_name"]
     else:
@@ -166,15 +166,24 @@ def get_most_recent_profile(name):
 
 def get_ign(discord_id):
     cur = conn.cursor()
-    cur.execute("SELECT ign FROM verification WHERE user_id=?",(discord_id,))
+    cur.execute("SELECT ign FROM verification WHERE user_id=%s",(int(discord_id),))
     resp = cur.fetchone()
     if resp:
         return resp[0]
     else:
         return None
+def get_profile(discord_id):
+    cur = conn.cursor()
+    cur.execute("SELECT profile FROM verification WHERE user_id=%s",(int(discord_id),))
+    resp = cur.fetchone()
+    if resp:
+        return resp[0]
+    else:
+        return None
+
 def get_token(discord_id):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM linked_users WHERE discord_id=?",(int(discord_id),))
+    cur.execute("SELECT * FROM linked_users WHERE discord_id=%s",(int(discord_id),))
     resp = cur.fetchone()
     if resp:
         return resp

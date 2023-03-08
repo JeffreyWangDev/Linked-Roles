@@ -28,7 +28,6 @@ class AccessToken():
             'Content-Type': 'application/x-www-form-urlencoded'
         }
         resp = requests.post("https://discord.com/api/oauth2/token",data=data,headers=headers)
-        print(resp.json())
         if resp.ok:
             json = resp.json()
             self.accessToken = json["access_token"]
@@ -36,7 +35,7 @@ class AccessToken():
             self.expires = time.time()+int(json["expires_in"])
             return self
         elif resp.status_code == 429:
-            raise Exception.RateLimited("Rate limited")
+            raise Exceptions.RateLimited("Rate limited")
         elif resp.status_code == 400:
             raise Exceptions.HTTPException("Code, client_id, or client_secret is invalid.")
         elif resp.status_code == 401:
@@ -44,7 +43,7 @@ class AccessToken():
         elif resp.status_code == 403:
             raise Exceptions.HTTPException("Client is not authorized to use the grant type.")
         else:
-            raise Exception.HTTPException("Unknown error")
+            raise Exceptions.HTTPException("Unknown error")
 
     def fetch_metadata(self):
         """
@@ -55,9 +54,9 @@ class AccessToken():
         if response.ok:
             return response.json()
         elif response.status_code == 429:
-            raise Exception.RateLimited("Rate limited")
+            raise Exceptions.RateLimited("Rate limited")
         elif response.status_code == 403:
-            raise Exception.Forbidden("Forbidden")
+            raise Exceptions.Forbidden("Forbidden")
         return(response.json())
     def update_metadata(self, title, subtitle, **metadata):
         """
@@ -109,12 +108,12 @@ class Client:
             token = AccessToken(self,json["access_token"], json["refresh_token"], time.time()+int(json["expires_in"]))
             return token
         elif resp.status_code == 429:
-            raise Exception.RateLimited("Rate limited")
+            raise Exceptions.RateLimited("Rate limited")
         elif resp.status_code == 400: 
             raise Exceptions.HTTPException("Code, client_id, or client_secret is invalid.")
         return(resp.json())
     
-    def from_refreshToken(self, refreshtoken,time = 0) -> AccessToken:
+    def from_refreshToken(self, refreshtoken, time = 0) -> AccessToken:
         """
         Exchanges a refreshtoken for an access token
         """
@@ -132,10 +131,10 @@ class Client:
         status = requests.put(f"https://discord.com/api/v10/applications/{self.id}/role-connections/metadata", headers={"authorization": f"Bot {self.token}"}, json=metadata)
         if status.ok:
             return status.json()
-        elif status.status_code == 429:
-            raise Exception.RateLimited("Rate limited")
-        elif status.status_code == 403:
-            raise Exception.Forbidden("Forbidden")
+        # elif status.status_code == 429:
+        #     raise Exceptions.RateLimited("Rate limited")
+        # elif status.status_code == 403:
+        #     raise Exceptions.Forbidden("Forbidden")
         return(status.json())
 
 class Exceptions():
@@ -146,7 +145,7 @@ class Exceptions():
         pass
 
     class RateLimited(HTTPException):
-        def __init__(self, text, retry_after):
+        def __init__(self, text, retry_after=None):
             self.retry_after = retry_after
             super().__init__(text)
   

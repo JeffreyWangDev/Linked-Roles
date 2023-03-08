@@ -160,8 +160,8 @@
             done = false;
             const api_call = async () => {
                 let code = new URLSearchParams(window.location.search).get("code");
-                const response = await fetch("https://link.farmingcouncil.com/api/new?code="+code);
-                const json = await response.json(); 
+                const response = await fetch("{{url}}/api/new?code="+code);
+                const json = await response.json();     
                 return(json);
             }
             resp = await api_call(); 
