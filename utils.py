@@ -157,6 +157,12 @@ def get_farming_data(user,profile=""):
     else:
         return [2,response.json()["error"]]
 
+def delete_user(discord_id:int):
+    cur = conn.cursor()
+    cur.execute("DELETE FROM linked_users WHERE discord_id=%s",(discord_id,))
+    conn.commit()
+    cur.close()
+
 def get_most_recent_profile(name):
     response = requests.get(f"{os.getenv('API_ENDPOINT')}/api/skyblock/profile/{name}")
     if response.ok:
@@ -190,6 +196,7 @@ def get_token(discord_id):
     cur = conn.cursor()
     cur.execute("SELECT * FROM linked_users WHERE discord_id=%s",(int(discord_id),))
     resp = cur.fetchone()
+
     cur.close()
 
     if resp:
