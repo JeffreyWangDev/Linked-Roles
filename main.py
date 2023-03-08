@@ -84,7 +84,7 @@ def do_everthing():
             else:
                 error = data[1]
         error = "No profile found with the name: " + ign
-    error = f"No ign found for {user['username']}, please link your account with /link <ign> in the discord server" 
+    error = f'No ign found for "{user["username"]}", please link your account with /link <ign> in the discord server'
     try:
         utils.delete_user(int(user["id"]))
     except:
