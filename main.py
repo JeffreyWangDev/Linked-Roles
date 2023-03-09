@@ -95,39 +95,5 @@ def do_everthing():
 def receive():
     return make_response(render_template("index.html",url = os.getenv("URL_BASE")))
 
-@app.route('/api/update', methods = ['POST'])
-def update():
-    id = request.args.get('id')
-    key1 = request.args.get('key1')
-    key2 = request.args.get('key2')
-    key3 = request.args.get('key3')
-    if key1 != "YHhGf6niyg4miqO20bvb0nedlgFSjjDW" and key2!="GFNYr8Mvh4ARYWAOpwBU5VgcjGlE2785"and key3!="F4bornqOxsJp20oSztUXfulHVBcKzB2S":   
-        return jsonify({"status":0,"msg":"Invalid key"})
-    token = utils.get_token(id)
-    if token:
-        try:
-            ign = utils.get_ign(id)
-            profile = utils.get_profile(id)
-        except:
-            return jsonify({"status":0,"msg":"IGN or profile not found"})
-        if not ign:
-            try:
-                utils.delete_user(id)
-            except:
-                pass
-            return jsonify({"status":0,"msg":"IGN not found, please link your account with /link <ign> in the discord server"})
-        try:
-            tk = AccessToken(client,token[4],token[5],int(token[6]))
-        except:
-            return jsonify({"status":0,"msg":"Invalid discord token, please remove this as a authorized app in your discord settings and try again!"})
-        data = utils.get_farming_data(ign,profile)
-        weight = utils.calculate_farming_weight(ign,profile)
-        #tk.update_metadata("Skyblock Farming Stats", f"{ign} ({profile})", level = data[1][0], exp = data[1][1], gold = data[1][2],weight = int(weight[1]))
-        try:
-            tk.update_metadata("Skyblock Farming Stats(beta)", f"{ign} ({profile})", level = data[1][0], exp = data[1][1], gold = data[1][2])
-        except:
-            return jsonify({"status":0,"msg":"Invalid discord token, please remove this as a authorized app in your discord settings and try again!"})
-        return jsonify({"status":1,"msg":f"Connected to player: {ign} with profile: {profile}."})
-    return jsonify({"status":0,"msg":"Player not found, please remove this as a authorized app in your discord settings and try again!"})
 if __name__ == '__main__':
     app.run(debug=True,port=80)
