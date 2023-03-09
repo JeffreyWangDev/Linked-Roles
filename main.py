@@ -84,7 +84,7 @@ def do_everthing():
             else:
                 error = data[1]
         error = "No profile found with the name: " + ign
-    error = f"No ign found for {user['username']}, please link your account with /link <ign> in the discord server" 
+    error = f'No ign found for "{user["username"]}", please link your account with /link <ign> in the discord server'
     try:
         utils.delete_user(int(user["id"]))
     except:
@@ -128,6 +128,6 @@ def update():
         except:
             return jsonify({"status":0,"msg":"Invalid discord token, please remove this as a authorized app in your discord settings and try again!"})
         return jsonify({"status":1,"msg":f"Connected to player: {ign} with profile: {profile}."})
-
+    return jsonify({"status":0,"msg":"Player not found, please remove this as a authorized app in your discord settings and try again!"})
 if __name__ == '__main__':
     app.run(debug=True,port=80)
