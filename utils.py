@@ -5,10 +5,10 @@ import os
 import mysql.connector
 load_dotenv()
 conn  = mysql.connector.connect(
-  host=os.getenv("DB_HOST"),
-  user=os.getenv("DB_USERNAME"),
-  password=os.getenv("DB_PASSWORD"),
-  database = os.getenv("DB_NAME"),
+  host=os.environ.get("DB_HOST"),
+  user=os.environ.get("DB_USERNAME"),
+  password=os.environ.get("DB_PASSWORD"),
+  database = os.environ.get("DB_NAME"),
   port = 32813
 )
 cur = conn.cursor()
@@ -35,8 +35,8 @@ def try_it(member,collat):
         return 1
 
 def calculate_farming_weight(ign,profile = ""):
-    response = requests.get(f"{os.getenv('API_ENDPOINT')}/api/skyblock/profile/{ign}/{profile}")
-    player = requests.get(f"{os.getenv('API_ENDPOINT')}/api/players/{ign}").json()
+    response = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/skyblock/profile/{ign}/{profile}")
+    player = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/players/{ign}").json()
     if not response.ok:
         return [0,response.json()["error"]]
     json = response.json()
@@ -122,8 +122,8 @@ def new_user(ign:str,discord_id:int,profile:str,access_token:str,refresh_token:s
 
 
 def get_farming_data(user,profile=""):
-    response = requests.get(f"{os.getenv('API_ENDPOINT')}/api/skyblock/profile/{user}/{profile}")
-    player = requests.get(f"{os.getenv('API_ENDPOINT')}/api/players/{user}").json()
+    response = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/skyblock/profile/{user}/{profile}")
+    player = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/players/{user}").json()
     if response.ok:
         json = response.json()
         try:
@@ -164,7 +164,7 @@ def delete_user(discord_id:int):
     cur.close()
 
 def get_most_recent_profile(name):
-    response = requests.get(f"{os.getenv('API_ENDPOINT')}/api/skyblock/profile/{name}")
+    response = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/skyblock/profile/{name}")
     if response.ok:
         return response.json()["cute_name"]
     else:

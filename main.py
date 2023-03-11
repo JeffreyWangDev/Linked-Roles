@@ -11,8 +11,7 @@ from threading import Thread
 import time
 load_dotenv()
 
-
-client = Client(os.getenv("TOKEN"), os.getenv("CLIENT_ID"), os.getenv("CLIENT_SECRET"),os.getenv("URL_BASE")+"/receive")
+client = Client(os.environ.get("TOKEN"), os.environ.get("CLIENT_ID"), os.environ.get("CLIENT_SECRET"),os.environ.get("URL_BASE")+"/receive")
 client.update_linked_roles([    
     {
         "type": 2,
@@ -43,7 +42,7 @@ client.update_linked_roles([
 
 # url = "https://discord.com/api/v10/applications/1059288523187949578/guilds/1071825301501382768/commands"
 # json = {"name": "update", "type": 1,"description": "Updates your linked roles","options": [],"dm_permission":False}
-# headers = {"Authorization": f"Bot {os.getenv('TOKEN')}"}
+# headers = {"Authorization": f"Bot {os.environ.get('TOKEN')}"}
 # time.sleep(5)
 
 # r = requests.post(url, headers=headers, json=json)
@@ -51,7 +50,7 @@ client.update_linked_roles([
 
 @app.route('/', methods = ['POST', 'GET'])
 def index():
-    return make_response(redirect(f"https://discord.com/api/oauth2/authorize?client_id={os.getenv('CLIENT_ID')}&redirect_uri={os.getenv('URL_BASE')}/receive&response_type=code&scope=identify%20role_connections.write"))
+    return make_response(redirect(f"https://discord.com/api/oauth2/authorize?client_id={os.environ.get('CLIENT_ID')}&redirect_uri={os.environ.get('URL_BASE')}/receive&response_type=code&scope=identify%20role_connections.write"))
 
 
 @app.route('/api/new', methods = ['GET'])
@@ -93,7 +92,7 @@ def do_everthing():
 
 @app.route('/receive', methods = ['GET'])
 def receive():
-    return make_response(render_template("index.html",url = os.getenv("URL_BASE")))
+    return make_response(render_template("index.html",url = os.environ.get("URL_BASE")))
 
 if __name__ == '__main__':
     app.run(debug=True,port=80)
