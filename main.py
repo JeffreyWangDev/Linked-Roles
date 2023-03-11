@@ -33,12 +33,12 @@ client.update_linked_roles([
         "description": "User's Gold Medals Won"
             
     }
-    # ,{
-    #     "type": 2,
-    #     "key": "weight",
-    #     "name": "Farming Weight",
-    #     "description": "User's Farming Weight"
-    # }
+    ,{
+        "type": 2,
+        "key": "weight",
+        "name": "Farming Weight",
+        "description": "User's Farming Weight"
+    }
     ])
 
 # url = "https://discord.com/api/v10/applications/1059288523187949578/guilds/1071825301501382768/commands"
@@ -78,8 +78,8 @@ def do_everthing():
             weight = utils.calculate_farming_weight(ign,profile)
             utils.new_user(ign,user["id"],profile,token.accessToken,token.refresh,token.expires,ip)
             if data[0] == 1 and weight[0] == 1:
-                #token.update_metadata("Skyblock Farming Stats", f"{ign} ({profile})", level = data[1][0], exp = data[1][1], gold = data[1][2],weight = int(weight[1]))
-                token.update_metadata("Skyblock Farming Stats(beta)", f"{ign} ({profile})", level = data[1][0], exp = data[1][1], gold = data[1][2])
+                token.update_metadata("Skyblock Farming Stats", f"{ign} ({profile})", level = data[1][0], exp = data[1][1], gold = data[1][2],weight = int(weight[1]))
+                #token.update_metadata("Skyblock Farming Stats(beta)", f"{ign} ({profile})", level = data[1][0], exp = data[1][1], gold = data[1][2])
                 return jsonify({"status":1,"msg":f"Connected to player: {ign} with profile: {profile}. \nTo change your profile, please use use the /link command in discord."})
             else:
                 error = data[1]

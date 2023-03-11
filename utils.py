@@ -175,7 +175,6 @@ def get_ign(discord_id):
     cur.execute("SELECT ign FROM verification WHERE user_id=%s",(int(discord_id),))
     resp = cur.fetchone()
     cur.close()
-
     if resp:
         return resp[0]
     else:
