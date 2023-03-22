@@ -82,7 +82,8 @@ def do_everthing():
                 return jsonify({"status":1,"msg":f"Connected to player: {ign} with profile: {profile}. \nTo change your profile, please use use the /link command in discord."})
             else:
                 error = data[1]
-        error = "No profile found with the name: " + ign
+        else:
+            error = "No profile found with the name: " + ign
     else:
         error = f'No ign found for "{user["username"]}", please link your account with /link <ign> in the discord server'
     try:
