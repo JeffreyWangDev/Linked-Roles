@@ -11,6 +11,7 @@ conn  = mysql.connector.connect(
   database = os.environ.get("DB_NAME"),
   port = 32813
 )
+
 cur = conn.cursor()
 # cur.execute("DROP TABLE IF EXISTS linked_users")
 # conn.commit()
@@ -28,6 +29,24 @@ cur.execute("""CREATE TABLE IF NOT EXISTS linked_users (
 conn.commit()
 cur.close()
 
+def new_cursor():
+    global conn
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM linked_users")
+        resp = cur.fetchone()
+        cur.close()
+    except:
+        conn.close()
+        n  = mysql.connector.connect(
+        host=os.environ.get("DB_HOST"),
+        user=os.environ.get("DB_USERNAME"),
+        password=os.environ.get("DB_PASSWORD"),
+        database = os.environ.get("DB_NAME"),
+        port = 32813
+        )
+        conn = n
+
 def try_it(member,collat):
     try:
         return int(member["collection"][collat])
@@ -35,6 +54,7 @@ def try_it(member,collat):
         return 1
 
 def calculate_farming_weight(ign,profile = ""):
+    new_cursor()
     response = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/skyblock/profile/{ign}/{profile}")
     player = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/players/{ign}").json()
     if not response.ok:
@@ -110,6 +130,7 @@ def calculate_farming_weight(ign,profile = ""):
         return [0,"Error: No player found. Please try again later or contact the developer at CosmicCrow#6355."]
 
 def new_user(ign:str,discord_id:int,profile:str,access_token:str,refresh_token:str,expires_in:int,ip:str):
+    new_cursor()
     cur = conn.cursor()
     cur.execute("SELECT * FROM linked_users WHERE discord_id=%s",(discord_id,))
     resp = cur.fetchall()
@@ -122,6 +143,7 @@ def new_user(ign:str,discord_id:int,profile:str,access_token:str,refresh_token:s
 
 
 def get_farming_data(user,profile=""):
+    new_cursor()
     response = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/skyblock/profile/{user}/{profile}")
     player = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/players/{user}").json()
     if response.ok:
@@ -158,12 +180,14 @@ def get_farming_data(user,profile=""):
         return [2,response.json()["error"]]
 
 def delete_user(discord_id:int):
+    new_cursor()
     cur = conn.cursor()
     cur.execute("DELETE FROM linked_users WHERE discord_id=%s",(discord_id,))
     conn.commit()
     cur.close()
 
 def get_most_recent_profile(name):
+    new_cursor()
     response = requests.get(f"{os.environ.get('API_ENDPOINT')}/api/skyblock/profile/{name}")
     if response.ok:
         return response.json()["cute_name"]
@@ -171,6 +195,7 @@ def get_most_recent_profile(name):
         return None
 
 def get_ign(discord_id):
+    new_cursor()
     cur = conn.cursor()
     cur.execute("SELECT ign FROM verification WHERE user_id=%s",(int(discord_id),))
     resp = cur.fetchone()
@@ -181,6 +206,7 @@ def get_ign(discord_id):
         return None
     
 def get_profile(discord_id):
+    new_cursor()
     cur = conn.cursor()
     cur.execute("SELECT profile FROM verification WHERE user_id=%s",(int(discord_id),))
     resp = cur.fetchone()
@@ -192,12 +218,12 @@ def get_profile(discord_id):
         return None
 
 def get_token(discord_id):
+    new_cursor()
     cur = conn.cursor()
     cur.execute("SELECT * FROM linked_users WHERE discord_id=%s",(int(discord_id),))
     resp = cur.fetchone()
-
     cur.close()
-
+    
     if resp:
         return resp
     else:
