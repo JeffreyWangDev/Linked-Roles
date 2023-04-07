@@ -104,6 +104,10 @@ def update():
         return jsonify({"status":0,"msg":"Invalid request, please try again later or contact the developer at CosmicCrow#6355"})
     if not id:
         return jsonify({"status":0,"msg":"Invalid request, please try again later or contact the developer at CosmicCrow#6355"})
+    try:
+        id = int(id)
+    except:
+        return jsonify({"status":0,"msg":"Invalid request, please try again later or contact the developer at CosmicCrow#6355"})
     user = utils.get_token(id)
     if not user:
         return jsonify({"status":0,"msg":"User not found, please try again later or contact the developer at CosmicCrow#6355"})
