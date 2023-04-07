@@ -9,11 +9,21 @@ class AccessToken():
         self.refresh = refresh
         self.expires = expires
     def cheek_token(self):
-        if self.accessToken == None:
-            self.refresh_token()
-        if self.expires < time.time():
-            self.refresh_token()
-
+        try:
+            a = self.fetch_metadata(from_cheek=True)
+            return(1)
+        except:
+            if self.accessToken == None:
+                self.refresh_token()
+            if self.expires < time.time():
+                self.refresh_token()
+            return(0)
+    def get_refresh_token(self):
+        return self.refresh
+    def get_access_token(self):
+        return self.accessToken
+    def get_expires_in(self):
+        return self.expires
     def refresh_token(self):
         """
         Refreshes the access token
@@ -25,9 +35,10 @@ class AccessToken():
             'refresh_token': self.refresh
         }
         headers = {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            "Authorization": f"Bearer {self.client.token}"
         }
-        resp = requests.post("https://discord.com/api/oauth2/token",data=data,headers=headers)
+        resp = requests.post("https://discord.com/api/v10/oauth2/token",data=data,headers=headers)
         if resp.ok:
             json = resp.json()
             self.accessToken = json["access_token"]
@@ -37,7 +48,7 @@ class AccessToken():
         elif resp.status_code == 429:
             raise Exceptions.RateLimited("Rate limited")
         elif resp.status_code == 400:
-            raise Exceptions.HTTPException("Code, client_id, or client_secret is invalid.")
+            raise Exceptions.HTTPException("Bad request")
         elif resp.status_code == 401:
             raise Exceptions.HTTPException("Client secret is invalid.")
         elif resp.status_code == 403:
@@ -45,19 +56,21 @@ class AccessToken():
         else:
             raise Exceptions.HTTPException("Unknown error")
 
-    def fetch_metadata(self):
+    def fetch_metadata(self,from_cheek = False):
         """
         Fetches the [metadata](https://discord.com/developers/docs/resources/user#application-role-connection-object) for this application. Requires the `role_connections.write` scope
         """
-        self.cheek_token()
+        if from_cheek == False:
+            self.cheek_token()
         response = requests.get(f"https://discord.com/api/v10/users/@me/applications/{self.client.id}/role-connection", headers={"authorization": f"Bearer {self.accessToken}"})
-        if response.ok:
+        if response.status_code == 200:
             return response.json()
         elif response.status_code == 429:
             raise Exceptions.RateLimited("Rate limited")
         elif response.status_code == 403:
             raise Exceptions.Forbidden("Forbidden")
-        return(response.json())
+        raise (Exceptions.HTTPException(response.json()))
+    
     def update_metadata(self, title, subtitle, **metadata):
         """
         Updates the user's metadata for this application. Requires the `role_connections.write` scope
@@ -67,12 +80,15 @@ class AccessToken():
         metadata: list key pairs for metadata, Allows `bool`, `int`, `datetime`, and `str` (only iso timestamps) values
         """
         self.cheek_token()
-        response = requests.put(f"https://discord.com/api/v10/users/@me/applications/{self.client.id}/role-connection", headers={
-        "authorization": f"Bearer {self.accessToken}"}, json={
-            "platform_name": title,
-            "platform_username": subtitle,
-            "metadata": {key: value for key, value in metadata.items()}
-        })
+        response = requests.put(f"https://discord.com/api/v10/users/@me/applications/{self.client.id}/role-connection", 
+            headers={
+            "authorization": f"Bearer {self.accessToken}"}, 
+            json={
+                "platform_name": title,
+                "platform_username": subtitle,
+                "metadata": {key: value for key, value in metadata.items()}
+        }
+        )
         if response.ok:
             return response.json()
         return(response.json())
@@ -113,12 +129,12 @@ class Client:
             raise Exceptions.HTTPException("Code, client_id, or client_secret is invalid.")
         return(resp.json())
     
-    def from_refreshToken(self, refreshtoken, time = 0) -> AccessToken:
+    def from_refreshToken(self, acctoken,refreshtoken,time = 0) -> AccessToken:
         """
         Exchanges a refreshtoken for an access token
         """
 
-        token = AccessToken(self,None, refreshtoken, 1)
+        token = AccessToken(self, acctoken, refreshtoken, 1)
         token.cheek_token()
         return token
 
@@ -131,10 +147,6 @@ class Client:
         status = requests.put(f"https://discord.com/api/v10/applications/{self.id}/role-connections/metadata", headers={"authorization": f"Bot {self.token}"}, json=metadata)
         if status.ok:
             return status.json()
-        # elif status.status_code == 429:
-        #     raise Exceptions.RateLimited("Rate limited")
-        # elif status.status_code == 403:
-        #     raise Exceptions.Forbidden("Forbidden")
         return(status.json())
 
 class Exceptions():
@@ -151,5 +163,4 @@ class Exceptions():
   
     class Forbidden(HTTPException):
         pass
-
 

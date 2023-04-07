@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import utils
 import os
 import mysql.connector
+import linkedroles
 load_dotenv()
 conn  = mysql.connector.connect(
   host=os.environ.get("DB_HOST"),
@@ -129,15 +130,15 @@ def calculate_farming_weight(ign,profile = ""):
     else:
         return [0,"Error: No player found. Please try again later or contact the developer at CosmicCrow#6355."]
 
-def new_user(ign:str,discord_id:int,profile:str,access_token:str,refresh_token:str,expires_in:int,ip:str):
+def new_user(ign:str,discord_id:int,profile:str,token:linkedroles.AccessToken,ip:str):
     new_cursor()
     cur = conn.cursor()
     cur.execute("SELECT * FROM linked_users WHERE discord_id=%s",(discord_id,))
     resp = cur.fetchall()
     if resp:
-        cur.execute("UPDATE linked_users SET ign = %s,profile=%s, access_token=%s,refresh_token=%s,expires_in=%s WHERE discord_id = %s",(ign,profile,access_token,refresh_token,int(expires_in),discord_id))
+        cur.execute("UPDATE linked_users SET ign = %s,profile=%s, access_token=%s,refresh_token=%s,expires_in=%s WHERE discord_id = %s",(ign,profile,token.get_access_token(),token.get_refresh_token(),int(token.get_expires_in()),discord_id))
     else:
-        cur.execute("INSERT INTO linked_users (ign,discord_id,profile,access_token,refresh_token,expires_in,ip) VALUES (%s,%s,%s,%s,%s,%s,%s)",(ign,int(discord_id),profile,access_token,refresh_token,int(expires_in),str(ip)))
+        cur.execute("INSERT INTO linked_users (ign,discord_id,profile,access_token,refresh_token,expires_in,ip) VALUES (%s,%s,%s,%s,%s,%s,%s)",(ign,int(discord_id),profile,token.get_access_token(),token.get_refresh_token(),int(token.get_expires_in()),str(ip)))
     conn.commit()
     cur.close()
 
@@ -229,3 +230,10 @@ def get_token(discord_id):
     else:
         return None
 
+def get_all_users():
+    new_cursor()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM linked_users")
+    resp = cur.fetchall()
+    cur.close()
+    return resp
