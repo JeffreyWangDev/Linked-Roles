@@ -14,7 +14,7 @@
         <title>Farming Council</title>
     </head>
     <body>
-        <div id = "loading" class="loading">
+        <div id="loading" class="loading">
             <h1>Loading...</h1>
             <div class="lds-ring">
                 <div></div>
@@ -25,15 +25,15 @@
         </div>
         <div id="error" class="error">
             <h1 class="errorh1">Error 404</h1>
-            <h1 id = "errorh2" class="errorh2">Unknown error has occurred</h1>
+            <h1 id="errorh2" class="errorh2">Unknown error has occurred</h1>
         </div>
-        <div id = "success" class="success">
+        <div id="success" class="success">
             <h1 class="successh1">You're all set now!</h1>
             <p class="successp">
-                Go back to the Discord Serer, click<br />"Linked Roles" again
+                Go back to the Discord Server, click<br />"Linked Roles" again
                 follow instructions!
             </p>
-            <p id = "successPlayer" class="successPlayer">Connected to player:</p>
+            <p id="successPlayer" class="successPlayer">Connected to player:</p>
         </div>
 
         <style>
@@ -61,7 +61,7 @@
             /************ Loading ************/
 
             .loading {
-                display: flex;  /* <--either this or "display:flex has to be commented out!!! */
+                display: flex; /* <--either this or "display:flex has to be commented out!!! */
                 /* display: none; */
                 flex-direction: column;
                 align-items: center;
@@ -151,34 +151,33 @@
         </style>
     </body>
     <script>
-        
-        async function make_request(){
-
-
-        }
+        async function make_request() {}
         window.onload = async (event) => {
             done = false;
             const api_call = async () => {
-                let code = new URLSearchParams(window.location.search).get("code");
-                const response = await fetch("{{url}}/api/new?code="+code);
-                const json = await response.json();     
-                return(json);
-            }
-            resp = await api_call(); 
+                let code = new URLSearchParams(window.location.search).get(
+                    "code"
+                );
+                const response = await fetch("{{url}}/api/new?code=" + code);
+                const json = await response.json();
+                return json;
+            };
+            resp = await api_call();
             console.log(resp);
-            if(!done){
-                if(resp["status"]==1){
+            if (!done) {
+                if (resp["status"] == 1) {
                     document.getElementById("loading").style.display = "none";
                     document.getElementById("success").style.display = "block";
-                    document.getElementById("successPlayer").innerHTML = resp["msg"];
+                    document.getElementById("successPlayer").innerHTML =
+                        resp["msg"];
                     done = true;
-                }else{
+                } else {
                     document.getElementById("loading").style.display = "none";
                     document.getElementById("error").style.display = "block";
                     document.getElementById("errorh2").innerHTML = resp["msg"];
                     done = true;
                 }
-                
-            }        };
+            }
+        };
     </script>
 </html>
